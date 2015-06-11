@@ -1,10 +1,5 @@
 ---
-title: API Reference
-
-
-toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='http://github.com/tripit/slate'>Documentation Powered by Slate</a>
+title: Industry2go API 2.0 Reference
 
 includes:
   - errors
@@ -23,7 +18,7 @@ All needed informations about our API is wrote here, the technical information a
 
 # Understanding the concept of the API
 
-The backend there the concept of taxonomy and terms, using this way is possible and easy to create multiple types of relationships andeasy to handle the data.
+The backend there the concept of taxonomy and terms, using this way is possible and easy to create multiple types of relationships and easy to handle the data.
 
 ##The Term concept
   Terms are all of our entities inside of our project eg: sections, products, documents. All of them are belongs to a Term, a term is the real “entity” that will relate with others terms.
@@ -335,3 +330,149 @@ background | true | Input file (only images)
 icon | true | Input file (only images)
 marketVersions | false | market version term id
 term[weight]   | false | weight of the entity to show in mobile side
+
+
+>Response: created entity data (status code 201(created))
+
+```json
+{
+    "metadata": {
+        "url": "http://"
+    },
+    "entity": {
+        "section": {
+            "id": 34,
+            "name": "test name",
+            "tag": "test tag"
+        },
+        "term": {
+            "id": 4564,
+            "name": "test name",
+            "weight": "0",
+            "on_demand_enabled": "0",
+            "on_demand_depth": "0",
+            "deleted": "0",
+            "created": "2015-06-11T04:20:21+0200",
+            "modified": "2015-06-11T04:20:21+0200"
+        }
+    }
+}
+```
+
+###Creating a new Product Brand
+
+### HTTP Request
+
+`POST http://industry2go.example.com/api/product_brands/?token=test_token`
+
+#### Request body parameters
+
+Parameter | Nullable | Description
+--------- | ------- | -----------
+name | false | The name of the product brands can be string max 255 characters
+info | true | Text area to add a long text about the product brand
+background | true | Input file (only images)
+icon | true | Input file (only images)
+marketVersions | false | market version term id
+term[weight]   | false | weight of the entity to show in mobile side
+parentTermId   | false | section term_id that will be parent of this entity
+
+
+###Creating a new Product Family
+
+### HTTP Request
+
+`POST http://industry2go.example.com/api/product_families/?token=test_token`
+
+#### Request body parameters
+
+Parameter | Nullable | Description
+--------- | ------- | -----------
+name | false | The name of the section can be string max 255 characters
+info | true | Text area to add a long text about the product family
+background | true | Input file (only images)
+marketVersions | false | market version term id
+term[weight]   | false | weight of the entity to show in mobile side
+parentTermId   | false | section term_id that will be parent of this entity
+
+
+###Creating a new Product
+
+### HTTP Request
+
+`POST http://industry2go.example.com/api/products/?token=test_token`
+
+#### Request body parameters
+
+Parameter | Nullable | Description
+--------- | ------- | -----------
+name | false | The name of the section can be string max 255 characters
+info | true | Text area to add a long text about the product family
+background | true | Input file (only images)
+marketVersions | false | market version term id
+term[weight]   | false | weight of the entity to show in mobile side
+parentTermId   | false | section term_id that will be parent of this entity
+
+
+###Creating a new Document
+
+### HTTP Request
+
+`POST http://industry2go.example.com/api/documents/?token=test_token`
+
+#### Request body parameters
+
+Parameter | Nullable | Description
+--------- | ------- | -----------
+name | false | The name of the document can be string max 255 characters
+thumblabel | false | The thumblabel of the document can be string max 60 characters
+approvalNumber | false | a numeric input [0~9]
+marketVersions | false | market version term id
+term[weight]   | false | weight of the entity to show in mobile side
+termsTerms   | false | section term_id that will be parent of this entity
+pdfStartPage | false | a numeric input [0 ~ 9]
+file | false | file input, that accepts PDF, Presentations and Videos, the kind of file will be auto detected after submit
+
+
+##PUT Updating entities
+
+To update a entity, basically the developer need add 3 fields in the request body and one more in the url. 
+Using our example domain, here we have `sections/term_id`, the method to make an update is `PUT` but if the language, or browser dont support `PUT` method can be using a `POST` with a parameter named `_method = PUT` in the body of the request.
+
+### HTTP Request
+
+`POST http://industry2go.example.com/api/sections/1?token=test_token`
+
+#### Request body parameters
+
+Parameter | Nullable | Description
+--------- | ------- | -----------
+name | false | The name of the section can be string max 255 characters
+tag | true | Tags are used only to show in the correct area on mobile side
+background | true | Input file (only images)
+icon | true | Input file (only images)
+marketVersions | false | market version term id
+term[weight]   | false | weight of the entity to show in mobile side
+id | false | numeric [0~9]
+termId | false |  numeric [0~9]
+_method | true | if the request dont support `PUT`, use a `POST` with this field with value `PUT`
+
+
+# Errors
+
+<aside class="notice">This erros follows the HTTP2 patterns.</aside>
+
+
+Error Code | Meaning
+---------- | -------
+400 | Bad Request -- Your request sucks
+401 | Unauthorized -- Your API key is wrong
+403 | Forbidden -- The kitten requested is hidden for administrators only
+404 | Not Found -- The specified kitten could not be found
+405 | Method Not Allowed -- You tried to access a kitten with an invalid method
+406 | Not Acceptable -- You requested a format that isn't json
+410 | Gone -- The kitten requested has been removed from our servers
+418 | I'm a teapot
+429 | Too Many Requests -- You're requesting too many kittens! Slow down!
+500 | Internal Server Error -- We had a problem with our server. Try again later.
+503 | Service Unavailable -- We're temporarially offline for maintanance. Please try again later.
