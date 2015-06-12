@@ -12,26 +12,27 @@ search: true
 
 Industry2go Developers Guide API 2.0
 
-All needed informations about our API is wrote here, the technical information and the concept about how it works.
-
-
+All the technical information and the concepts behind the data involved and other necessary information about Industry2go's back-end API is contained here.
 
 # Understanding the concept of the API
 
-The backend there the concept of taxonomy and terms, using this way is possible and easy to create multiple types of relationships and easy to handle the data.
+In our backend we make use of the concepts of taxonomies and terms. These concepts, which will be detailed next, makes it possible to create multiple types of relationships among pieces of data and simplify the handle of common data.
 
-##The Term concept
-  Terms are all of our entities inside of our project eg: sections, products, documents. All of them are belongs to a Term, a term is the real “entity” that will relate with others terms.
-All entities have an id(normal identifier field) and have a term_id(that means your term_id related with term).
+## The Term concept
 
-To create relations, all that you will need is know the term_id of the needed entity eg: a product brand have a term_id 100 to create a relation between a product family and this product brand you just need set the parent_term_id of the product family.
+Term is a generic entity that encapsulates data that's common to all the other entities. A term is like an abstract root class, this means that you never create a term by itself, but all the concrete entities (sections, products, documents, etc.) are backed by a term. However, the term is the entity that is in fact used to relate with others terms.
 
-All entities with multiple relations have a field in the request body named relations, that field have all of the relation terms, this turn easy to walk between this relations.
+All entities have an `id` (a normal identifier field, which is unique in the context) and have a `term_id` (a globally unique `id`, for the term information of that entity). For instance, if we take an empty database and create a Document, this new Document will have an `id` equal to 1 and a `term_id` also equal to 1. Now if we create a Product, it'll have an `id` equal to 1 but a `term_id` equal to 2 (remember, the `term_id` is unique!). Now if we create a new Document, it'll have an `id` equal to 2 and a `term_id` equal to 3, and so on.
 
-##The Taxonomy concept
-All entities are terms, but the developer need know what this terms are, to solve this needs we have the Taxonomy Concept, all terms belongs to a taxonomy, a taxonomy is the kind of entity they are, eg: a document with id 1 and term id 100, the term have a field named taxonomy id that refers to taxonomy Document.
+When it comes to creating relationships, we always use the `term_id` of the involved entities, e.g., if you want to link a Product Brand to a parent Section we set the `parent_term_id` of the Product Brand to the `term_id` from the Section.
+
+All entities that are involved in multiple relationships have an array in the response body named `relations`. This array carries the term information of all related terms.
+
+## The Taxonomy concept
+
+All entities are terms, but the developer need know which is the concrete entity for a term, i.e., if a term is a Document or a Product, for instance. This is resolved by Taxonomy Concept, where each and every term belongs to a taxonomy.
   
-The developer always can use the Taxonomy id to know what kind of entity the term are.
+Take the following dictionary as an example. `Section` is a taxonomy and its `taxomomy_id` is 1 (this is not the same of an "instance" of a Section with `id` equal to 1). The developer can always rely on the `taxonomy_id` of a term to know which is the "concrete" entity of that term.
 
 > Example of generated data after a CREATE action:
 
@@ -66,37 +67,32 @@ The developer always can use the Taxonomy id to know what kind of entity the ter
 <aside class="success">
 Check the example in the right side, is a json response of a created Section
 </aside>
-The developer have created a new section, we can see the body informations and in the term you can see the relation with the Taxonomy, the taxonomy id 1 is Section.
+After the developer has created a new Section, we can see the data created in the response body, and in the term dictionary you can see the `taxonomy_id` equal to 1, indicating that this term comes from a Section.
 
-  Developers can access the list of taxonomies making a request in the api, that will be shown soon in this document.
-
-
-
+Developers can access the list of taxonomies by making a request via the API. More instructions are coming soon to this document.
 
 # Understanding how the API works
 
-The first stuff that a developer who will use this api need know is the difference between update API and normal APi. The update api is used for devices, that can download content and get updates, developers should use the normal api that will show all content without update rules.
-  All of the requestsfollow the RESTful principle, using correctly http codes, error messages and more.
+The first thing a developer should know is that s/he can, optionally, use the back-end to calculate the content that needs to be download on the client side. In order to do this, each and every download of content has to be confirmed (there's a call in the API just for that). If the client programmer handles synchronization on the client side or is always interested in the whole content, s/he should use the API in passing a parameter to explicitly bypass the updates engine. The default behavior is calculating the updates, but this should change in the future.
+
+All of the API calls follow the RESTful principle, making extensive use of HTTP verbs/codes and error messages.
 
 ## Query Paramaters
 
-<aside class="notice">Query parameters are the way to send parameters attached in the api URL, this way is used frequently in this API..</aside>
+<aside class="notice">Query parameters are passed via the request URL.</aside>
 
-List of accepeted parameters::
+List of accepeted parameters:
 
 
 Parameter | Meaning
 ---------- | -------
-token | The most important query parameter, that will be always needed in a request, this is the token of who are making the request.
-updateEnabled | This is the way to switch between normal and update api, developer should always send ?updatedEnabled=false to use the normal api to make requests type GET
-limit | The limit parameter is used in GET requests, to limit you body content, this parameter is very important, a long body request turn the respose slow
-page | Who are making the request can walk between pages of content using  ?page=number query parameter.
-
+token | This parameter is always required in a request, and it represents the registration token of the device which is making the request.
+updateEnabled | This parameter toggles On and Off the update calculation on the request processing; the default value for this parameter is `true`, in case this parameter is not present. 
+limit | The limit parameter is used in GET requests, to limit you body content, this parameter is very important, a long body request can turn the respose slow.
+page | Who's making the request can walk between pages of content using  ?page=number query parameter.
 
 
 #The API for CRUD operations
-
-
 
 To start using the api you will need a valid device token.
 The api will use a url like this `http://industry2go.example.com/api/` always with `/api/`, following the restful principles, the parameters that will be attached after this `api/` is the resource that the developer will handle, like documents, or products.
@@ -456,23 +452,3 @@ term[weight]   | false | weight of the entity to show in mobile side
 id | false | numeric [0~9]
 termId | false |  numeric [0~9]
 _method | true | if the request dont support `PUT`, use a `POST` with this field with value `PUT`
-
-
-# Errors
-
-<aside class="notice">This erros follows the HTTP2 patterns.</aside>
-
-
-Error Code | Meaning
----------- | -------
-400 | Bad Request -- Your request sucks
-401 | Unauthorized -- Your API key is wrong
-403 | Forbidden -- The kitten requested is hidden for administrators only
-404 | Not Found -- The specified kitten could not be found
-405 | Method Not Allowed -- You tried to access a kitten with an invalid method
-406 | Not Acceptable -- You requested a format that isn't json
-410 | Gone -- The kitten requested has been removed from our servers
-418 | I'm a teapot
-429 | Too Many Requests -- You're requesting too many kittens! Slow down!
-500 | Internal Server Error -- We had a problem with our server. Try again later.
-503 | Service Unavailable -- We're temporarially offline for maintanance. Please try again later.
